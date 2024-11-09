@@ -1,16 +1,13 @@
-#include <DHT.h>
+#include <DHT11.h>
 
 #define DHT11_PIN 9         // Pin connected to the DHT11 sensor
 #define BUZZER_PIN 4        // Pin connected to the buzzer
 #define GREEN_LED_PIN 5     // Pin connected to the green LED
 
-#define DHTTYPE DHT11       // DHT sensor type (DHT11)
-DHT dht(DHT11_PIN, DHTTYPE);
+DHT11 dht11(DHT11_PIN);     // Initialize DHT11 object
 
 void setup() {
   Serial.begin(115200);
-
-  dht.begin(); // Initialize the DHT11 sensor
 
   // Set the pin modes
   pinMode(BUZZER_PIN, OUTPUT);
@@ -24,13 +21,15 @@ void setup() {
 void loop() {
   delay(2000); // Wait 2 seconds between readings
 
-  // Read humidity and temperature
-  float humidity = dht.readHumidity();
-  float tempC = dht.readTemperature();
-  float tempF = dht.readTemperature(true);
+  // Create variables to store humidity and temperature readings
+  int humidity = 0;
+  int tempC = 0;
+  
+  // Read humidity and temperature from DHT11 sensor
+  int chk = dht11.read(DHT11_PIN, &tempC, &humidity);
 
   // Check if the readings are valid
-  if (isnan(humidity) || isnan(tempC) || isnan(tempF)) {
+  if (chk != DHTLIB_OK) {
     Serial.println("Failed to read from DHT11 sensor!");
     return;
   }
@@ -40,13 +39,11 @@ void loop() {
   Serial.print(humidity);
   Serial.print("%   ||  Temperature: ");
   Serial.print(tempC);
-  Serial.print("°C ~ ");
-  Serial.print(tempF);
-  Serial.println("°F");
+  Serial.println("°C");
   Serial.println("================================");
 
   // Temperature threshold check
-  if (tempC >= 28.0) {
+  if (tempC >= 28) {
     // If temperature is too high, turn off green LED and activate buzzer
     digitalWrite(GREEN_LED_PIN, LOW);
 
