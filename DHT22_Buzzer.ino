@@ -1,54 +1,58 @@
-#include <DHT11.h>
+#include <DHT.h>
 
-#define DHT11_PIN 9         // Pin connected to the DHT11 sensor
-#define BUZZER_PIN 4        // Pin connected to the buzzer
-#define GREEN_LED_PIN 5     // Pin connected to the green LED
+// Pin Definitions
+#define DHT22_PIN 9        // Pin connected to the DHT22 sensor
+#define BUZZER_PIN 4       // Pin connected to the buzzer
+#define GREEN_LED_PIN 5    // Pin connected to the green LED
 
-DHT11 dht11(DHT11_PIN);     // Initialize DHT11 object
+// DHT Sensor Configuration
+#define DHTTYPE DHT22      // Change this to DHT11 if you're using a DHT11 sensor
+DHT dht(DHT22_PIN, DHTTYPE);
 
 void setup() {
   Serial.begin(115200);
+  
+  dht.begin(); // Initialize the DHT sensor
 
-  // Set the pin modes
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
 
-  // Turn off the buzzer and LED initially
+  // Ensure all outputs are initially off
   digitalWrite(BUZZER_PIN, LOW);
   digitalWrite(GREEN_LED_PIN, LOW);
 }
 
 void loop() {
-  delay(2000); // Wait 2 seconds between readings
+  delay(2000); // Delay between sensor readings
 
-  // Create variables to store humidity and temperature readings
-  int humidity = 0;
-  int tempC = 0;
-  
-  // Read humidity and temperature from DHT11 sensor
-  int chk = dht11.read(DHT11_PIN, &tempC, &humidity);
+  // Read humidity and temperature
+  float humidity = dht.readHumidity();
+  float tempC = dht.readTemperature();
+  float tempF = dht.readTemperature(true);
 
   // Check if the readings are valid
-  if (chk != DHTLIB_OK) {
-    Serial.println("Failed to read from DHT11 sensor!");
+  if (isnan(humidity) || isnan(tempC) || isnan(tempF)) {
+    Serial.println("Failed to read from DHT22 sensor!");
     return;
   }
 
   // Display the readings on the serial monitor
-  Serial.print("Humidity: ");
+  Serial.print("DHT22# Humidity: ");
   Serial.print(humidity);
   Serial.print("%   ||  Temperature: ");
   Serial.print(tempC);
-  Serial.println("°C");
-  Serial.println("================================");
+  Serial.print("°C ~ ");
+  Serial.print(tempF);
+  Serial.println("°F");
+  Serial.println("= = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
 
   // Temperature threshold check
-  if (tempC >= 28) {
+  if (tempC >= 28.0) {
     // If temperature is too high, turn off green LED and activate buzzer
     digitalWrite(GREEN_LED_PIN, LOW);
 
     // Buzzer beeps 3 times
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 5; i++) {
       digitalWrite(BUZZER_PIN, HIGH);
       Serial.println("Buzzer TURN ON!!!   ||  HIGH TEMPERATURE!!");
       delay(100);
