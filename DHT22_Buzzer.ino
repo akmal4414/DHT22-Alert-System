@@ -1,13 +1,13 @@
 #include <DHT.h>
 
 
-#define DHT22_PIN 9      
+#define DHT11_PIN 9      
 #define BUZZER_PIN 4      
 #define GREEN_LED_PIN 5    
 
 /
-#define DHTTYPE DHT22      // Change this to DHT11 if you're using a DHT11 sensor
-DHT dht(DHT22_PIN, DHTTYPE);
+#define DHTTYPE DHT11      // Change this to DHT11 if you're using a DHT11 sensor
+DHT dht(DHT11_PIN, DHTTYPE);
 
 void setup() {
   Serial.begin(115200);
@@ -37,7 +37,7 @@ void loop() {
   }
 
   // Display the readings on the serial monitor
-  Serial.print("DHT22# Humidity: ");
+  Serial.print("DHT11# Humidity: ");
   Serial.print(humidity);
   Serial.print("%   ||  Temperature: ");
   Serial.print(tempC);
